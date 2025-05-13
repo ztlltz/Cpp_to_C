@@ -56,4 +56,115 @@ cpp那些好用的stl，在c语言里面能不能也被很优美的实现。
   qsort(v,vSize,sizeof(int),cmp);
   ```
 
+
+复杂度如下表：
+
+| 操作  | 复杂度 |
+| ----- | ------ |
+| qsort | nlogn  |
+| sort  | nlogn  |
+
+---
+
+## 哈希表
+
+哈希表在cpp中我们有两种类似的实现，一种是map，另一个是unordered_map,其中map的底层实现是红黑树，而unordered_map是纯纯的哈希表实现。
+
+对于cpp的哈希表我们常用的操作有以下几种：
+
+* 初始化
+
+  ```c++
+  unordered_map<int,int>mp;
+  ```
+
+* 插入
+
+  ```c++
+  // 方法一
+  mp[key]=value;
+  // 方法二
+  mp.insert({key,value});
+  ```
+
+* 查询key对应的value
+
+  ```c++
+  //查询key存不存在(flag = 0 or 1)
+  int flag = mp.count(key);
+  // 获取对应的value
+  auto value = mp[key];
+  ```
+
+* 删除key的键值对
+
+  ```c++
+  mp.erase(key);
+  ```
+
+c语言并没有原生的哈希表实现，但是有一个开源库，uthash
+
+* 初始化
+
+  ```c
+  #include "uthash.h"
+  typedef struct {
+      int key;
+      UT_hash_handle hh;
+  } HashItem; 
+  HashItem * mp = NULL;
+  ```
+
+* 插入
+
+  ```c
+  // 查询key存不存在（pEntry = NULL or key的地址）
+  HashItem *hashFindItem(HashItem **obj, int key) {
+      HashItem *pEntry = NULL;
+      HASH_FIND_INT(*obj, &key, pEntry);
+      return pEntry;
+  }
+  // 插入元素
+  // 支持插入INT,STR,PTR ,也可以HASH_ADD支持任意元素
+  bool hashAddItem(HashItem **obj, int key) {
+      if (hashFindItem(obj, key)) {
+          return false;
+      }
+      HashItem *pEntry = 
+          (HashItem *)malloc(sizeof(HashItem));
+      pEntry->key = key;
+      HASH_ADD_INT(*obj, key, pEntry);
+      return true;
+  }
+  ```
+
+* 删除元素
+
+  ```c
+  void hashFree(HashItem **obj) {
+      HashItem *curr = NULL, *tmp = NULL;
+      HASH_ITER(hh, *obj, curr, tmp) {
+          HASH_DEL(*obj, curr);  
+          free(curr);
+      }
+  }
+  //删除所有元素
+  HASH_CLEAR(hh,users);
+  ```
+
+* 杂项
+
+  ```c
+  //获取元素个数
+  int size = HASH_COUNT(mp);
+  //遍历
+  for (HashItem *pEntry = mp; 
+       pEntry; 
+       pEntry = pEntry->hh.next) {
+          res[pos++] = pEntry->key;
+  }
+  //排序哈希表
+  HASH_SORT(mp, cmp);
+  ```
+
   
