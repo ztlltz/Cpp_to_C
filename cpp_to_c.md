@@ -20,6 +20,115 @@ cpp那些好用的stl，在c语言里面能不能也被很优美的实现。
 
 ---
 
+##  指针和字符串
+
+大多数情况下，我们都想在堆上开辟一个内存，在cpp中呢基本上我们不用担心这个事情，因为cpp的stl都是开辟在堆上的。但是如果我们要在c里面实现这个东西呢，事情就变得不太简约起来。
+
+以开辟一个二维空间举例：
+
+对于cpp下面三行就能实现
+
+```c++
+int rows = 10;
+int cols = 10;
+vector<vector<int>>nums(rows,vector<int>(cols));
+```
+
+而c语言则如下
+
+```c
+int rows = 10;
+int cols = 10;
+int** nums = malloc(rows * sizeof(int*));
+for(int i=0;i<rows;i++){
+    nums[i] = malloc(cols * sizeof(int));
+    memset(nums[i],0,col * sizeof(int)); //初始化为0
+}
+```
+
+如果在cpp里面这就结束了，后面也不用管nums了，但是在c里面我们还得记得把他的空间释放了。
+
+```c
+for(int i=0;i<rows;i++){
+   free(nums[i]);
+}
+free(nums);
+```
+
+总之写起来还是比较繁琐的。
+
+同样还有个用起来比较繁琐的，就是字符串
+
+由于c风格的字符串其实就是字符数组，所以定义字符串和定义数组是一样的。
+
+需要注意的是，c语言默认字符串的结尾是'\0'，所以内存的分配要多预留一个空间。
+
+那么我们来看看对于操作c字符串的一些常用的函数:
+
+### strdup
+
+有时候我们想创建一个字符串来对另一个字符串进行深拷贝
+
+这时候如果我们可以重新分配一段空间，然后赋值成和另一个字符串一样的值。
+
+c语言的strdup将这套操作简化成了函数strdup，大致工作方式如下
+
+```c
+char  * destString = malloc(sizeof(char) * (strlen(sourceString)+1)); //记得放'\0'
+for(...){
+	destString[i] = sourceString[i];
+}
+return destString;
+```
+
+观察他的工作方式我们发现strdup的复杂度是O(n)的。
+
+使用起来如下:
+
+```c
+char  * destString = strdup(sourceString);
+```
+
+需要注意的是，这个函数要求sourceString非NULL，同时如果内存分配失败，函数会返回NULL。
+
+当然，还有一件事，记得最后把他手动free掉
+
+```c
+free(destString);
+```
+
+---
+
+### strlen
+
+strlen有点类似string.size()，不同点在于它的复杂度是O(n)，而且他会不计算'\0'的空间。
+
+所以要注意在内存分配时string的真实大小是strlen+1，但是我们谈论字符串长度时往往不加1。
+
+```c
+int stringSize = strlen(string);
+```
+
+### memcpy
+
+memcpy不是一个专门操作字符串的函数，但是在字符串中出现比较频繁。它支持我们将一个内存的所有值复制给另一个内存
+
+```c
+memcpy(dest,source,lenth); // lenth为内存大小
+```
+
+还有一个和他长得比较像的交memset
+
+这个字符串就不太常用，它是把每个字节赋值成一个值
+
+```c
+memset(ptr,0,lenth); // lenth为内存大小
+```
+
+往往我们用它来将内存赋值为0。
+
+---
+
 ##  排序函数
 
 说到排序函数，在cpp中我们往往只有一个选择，那就是使用sort函数。sort函数的构成分为两大块，
