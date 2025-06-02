@@ -6,7 +6,7 @@
 
 
 
-## 引言
+## 0 引言
 
 如果你曾经被c语言的繁琐操作劝退到cpp，那么当你的cpp大成后，你可能会想知道一件事：
 
@@ -20,9 +20,11 @@ cpp那些好用的stl，在c语言里面能不能也被很优美的实现。
 
 ---
 
-##  指针和字符串
+##  1 指针和字符串
 
-大多数情况下，我们都想在堆上开辟一个内存，在cpp中呢基本上我们不用担心这个事情，因为cpp的stl都是开辟在堆上的。但是如果我们要在c里面实现这个东西呢，事情就变得不太简约起来。
+### 1.1 内存管理
+
+大多数情况下，我们都想在堆上开辟一个内存。在cpp中，基本上我们不用担心这个事情，因为cpp的stl都是开辟在堆上的。但是如果我们要在c里面实现这个东西呢，事情就变得不太简约起来。
 
 以开辟一个二维空间举例：
 
@@ -63,9 +65,11 @@ free(nums);
 
 需要注意的是，c语言默认字符串的结尾是'\0'，所以内存的分配要多预留一个空间。
 
+---
+
 那么我们来看看对于操作c字符串的一些常用的函数:
 
-### strdup
+### 1.2 strdup
 
 有时候我们想创建一个字符串来对另一个字符串进行深拷贝
 
@@ -99,7 +103,7 @@ free(destString);
 
 ---
 
-### strlen
+### 1.3 strlen
 
 strlen有点类似string.size()，不同点在于它的复杂度是O(n)，而且他会不计算'\0'的空间。
 
@@ -109,15 +113,19 @@ strlen有点类似string.size()，不同点在于它的复杂度是O(n)，而且
 int stringSize = strlen(string);
 ```
 
-### memcpy
+---
 
-memcpy不是一个专门操作字符串的函数，但是在字符串中出现比较频繁。它支持我们将一个内存的所有值复制给另一个内存
+### 1.4 memcpy_s
+
+memcpy不是一个专门操作字符串的函数，但是在字符串中出现比较频繁。它支持我们将一个内存的值复制给另一个内存
 
 ```c
-memcpy(dest,source,lenth); // lenth为内存大小
+memcpy_s(dest,lenthDest,source,lenthSource); // lenth为内存大小
 ```
 
-还有一个和他长得比较像的交memset
+还有一个和他长得比较像的是memset
+
+### 1. 5 memset
 
 这个字符串就不太常用，它是把每个字节赋值成一个值
 
@@ -126,6 +134,43 @@ memset(ptr,0,lenth); // lenth为内存大小
 ```
 
 往往我们用它来将内存赋值为0。
+
+### 例题 1
+
+>给定一个字符串A，请返回一个新的字符串B，满足B = A + A' ,其中A'为A的反转字符串。
+>
+>比如，当A为“string”时，A'为“gnirts”，B为“stringgnirts”
+
+```c
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+// 要传入指针B和长度lenOfB的地址，否则实际上更改的是参数的副本
+void concatWithReverse(char* A, int lenOfA, char** B, int* lenOfB) {
+	*lenOfB = lenOfA * 2;
+	*B = (char*)malloc(sizeof(char) * ((*lenOfB) + 1)); // 预留一个‘\0’;
+	(*B)[*lenOfB] = '\0';
+	memcpy_s((*B), (*lenOfB) * sizeof(char), A, lenOfA * sizeof(char));
+	for (int i = 0; i < lenOfA; ++i) {
+		(*B)[i+lenOfA] = A[lenOfA - i - 1];
+	}
+}
+int main() {
+	char *A ,*B;
+	int lenOfA = 10;
+	int lenOfB = 0;
+	A = strdup("12345abcde");
+	concatWithReverse(A, lenOfA, &B, &lenOfB);
+	printf("%d\n%s", lenOfB, B);
+    
+    free(A);
+    free(B);
+	return 0;
+}
+
+```
+
+
 
 ---
 
@@ -172,6 +217,65 @@ memset(ptr,0,lenth); // lenth为内存大小
 | ----- | ------ |
 | qsort | nlogn  |
 | sort  | nlogn  |
+
+例题 2
+
+> 给定一个包含数字和字母的字符串，请返回他的升序版本，其中规定，大写字母>数字>小写字母
+>
+> tip: ASCII里小写字母>大写字母>数字
+>
+> 比如 
+>
+> 输入:
+>
+> ThisIs1Test  
+>
+> 输出：
+>
+> ITTehissst1
+
+```c
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+int getType(char a){
+	if(a>='0'&&a<='9'){
+		return 2;
+	}
+	if(a>='a'&&a<='z'){
+		return 1;
+	}
+	if(a>='A'&&a<='Z'){
+		return 0;
+	}
+}
+int cmp(const void *a, const void *b){
+	char aa= *((char*)a);
+	char bb= *((char*)b);
+	int typeA = getType(aa);
+	int typeB = getType(bb);
+	if(typeA!=typeB){
+		return typeA-typeB;
+	}
+	else{
+		return aa - bb; 
+	}
+}
+void SortStringWithNewRule(char *string){
+	qsort(string,strlen(string),sizeof(char),cmp);
+	for(int i=0;i<strlen(string);i++){
+		printf("%c",string[i]);
+	}
+	printf("\n");
+}
+int main(){
+	char * inputString = strdup("ThisIs1Test");
+	SortStringWithNewRule(inputString);
+	free(inputString);
+}
+```
+
+
 
 ---
 
@@ -267,13 +371,12 @@ c语言并没有原生的哈希表实现，但是有一个开源库，uthash
   //获取元素个数
   int size = HASH_COUNT(mp);
   //遍历
-  for (HashItem *pEntry = mp; 
-       pEntry; 
-       pEntry = pEntry->hh.next) {
+  for (HashItem *pEntry = mp; pEntry; pEntry = pEntry->hh.next) {
           res[pos++] = pEntry->key;
   }
   //排序哈希表
   HASH_SORT(mp, cmp);
   ```
-
   
+  ---
+
