@@ -135,6 +135,25 @@ memset(ptr,0,lenth); // lenth为内存大小
 
 往往我们用它来将内存赋值为0。
 
+### 1.6 sprintf & snprintf
+
+字符串唯一真神，将格式化的内容输入到字符串里面
+
+```c
+sprintf(str,"(%d,%d)",x,y);
+// 下面是安全版本，当格式化内容（包括'\0'）等于strSize就结束
+snprintf(str,strSize,"(%d,%d)",x,y);
+
+// 例子
+char str[10];
+long long num = 12345678910;
+
+snprintf(str, sizeof(str), "%lld", num); // str = "123456789"
+	
+```
+
+---
+
 ### 例题 1
 
 >给定一个字符串A，请返回一个新的字符串B，满足B = A + A' ,其中A'为A的反转字符串。
@@ -167,10 +186,24 @@ int main() {
     free(B);
 	return 0;
 }
-
 ```
+### 例题 2
 
+>给定两个int类型的数字x,y，修改字符串output,使得output形如（x,y）
+>
+>比如，当x = 0 ,y = 2时output为“(0,2)”
 
+```c
+#include <stdio.h>
+#include <string.h>
+
+void ExecCommand(int x, int y char *output, int outputSize)
+{
+    // 格式化输出
+    // 确保输出不会超过 outputSize
+    snprintf(output, outputSize, "(%d,%d)", x, y);
+}
+```
 
 ---
 
