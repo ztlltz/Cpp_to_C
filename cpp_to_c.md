@@ -152,6 +152,45 @@ snprintf(str, sizeof(str), "%lld", num); // str = "123456789"
 	
 ```
 
+### 1.7 strncpy
+
+可以把字符串复制给另一个字符串
+
+```c
+strncpy(str1,str2,lenth); // lenth为总长度，包括'\0'
+
+// 如果lenth大于 str2的总长度没影响
+// 如果str2的总长度大于lenth则str1最后没有'\0'
+
+char dest[10];
+const char *src = "Hello"; // 总长度为6
+
+// 复制5个字符，不会添加'\0'
+strncpy(dest, src, 5);
+printf("情况1: %s\n", dest);  // 输出结果为"Hello"
+
+// 复制3个字符，剩余空间用'\0'填充
+strncpy(dest, src, 3);
+dest[3] = '\0';  // 手动添加字符串结束符
+printf("情况2: %s\n", dest);  // 输出结果为"Hel"
+
+// 源字符串长度大于n，不会添加'\0'
+strncpy(dest, "LongString", 5);
+printf("情况3: %s\n", dest);  // 输出结果不确定，可能是"LongS"加上一些随机字符
+```
+
+### 1.8 strcmp
+
+返回两个字符串的字典序关系
+
+```c
+int strcmp(const char *s1, const char *s2);
+// s1 < s2 返回 -1 
+// s1 == s2 返回 0 
+// s1 > s2 返回 1
+// 如果两个字符串前面都一样，那么长的那个更大
+```
+
 ---
 
 ### 例题 1
